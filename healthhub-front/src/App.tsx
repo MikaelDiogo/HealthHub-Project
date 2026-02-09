@@ -3,6 +3,9 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import { Patients } from './pages/Patients';
+import { Monitoring } from './pages/Monitoring';
+import { Alerts } from './pages/Alerts';
 
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -27,8 +30,22 @@ export default function App() {
       <Dashboard/>
       </PrivateRoute>
       } >
-        <Route index element={<div>Aqui é o conteúdo da sua Home/Dash</div>}/>
-        <Route path="pacientes" element={<div>Aqui é a página de Pacientes</div>} />
+        <Route index element=''/>
+        <Route path="pacientes" element={
+          <PrivateRoute>
+            <Patients></Patients>
+          </PrivateRoute>
+        }/>
+        <Route  path="monitor" element={
+          <PrivateRoute>
+            <Monitoring/>
+          </PrivateRoute>
+        }/> 
+         <Route  path="alertas" element={
+          <PrivateRoute>
+            <Alerts/>
+          </PrivateRoute>
+        }/> 
 
        </Route>
 

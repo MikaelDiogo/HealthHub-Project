@@ -6,10 +6,11 @@ import './styles.css'
 interface SidebarLinkProps {
   to: string;
   label: string;
+  textLabel: string;
   icon: React.ReactNode;
 }
 
-export const SideBarLink = ({to, label, icon}: SidebarLinkProps) => {
+export const SideBarLink = ({to, label, icon, textLabel}: SidebarLinkProps) => {
     const location = useLocation();
     const isActive = location.pathname === to;
 
@@ -17,15 +18,18 @@ export const SideBarLink = ({to, label, icon}: SidebarLinkProps) => {
         <UnstyledButton component={RouterLink}
         to={to}
         className={`
-        w-full p-3 rounded-xl transition-all duration-200
+        w-full p-3 rounded-lg transition-all duration-200
         ${isActive 
-          ? 'bg-brand-blue text-white shadow-md' 
-          : 'text-brand-navy hover:bg-brand-blue/10'}
+          ? 'bg-brand-blue/14! text-blue-800! border-2! border-blue-400/30! p-1! shadow-lg' 
+          : 'text-black! hover:bg-brand-blue/10!'}
       `}
         >
-            <Group gap="md">
+            <Group gap={8}>
         {icon}
-        <Text size="sm" fw={600}>{label}</Text>
+        <Group className='flex! flex-col!' gap={0} align='flex-start'>
+        <Text className='font-medium!' size="sm" fw={600}>{label}</Text>
+        <Text className='font-medium! text-xs! text-brand-navy!'>{textLabel}</Text>
+        </Group>
       </Group>
         </UnstyledButton>
     );
