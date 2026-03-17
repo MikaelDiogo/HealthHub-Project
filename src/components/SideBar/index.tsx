@@ -1,4 +1,4 @@
-import { Text, Box, Group, Divider, Stack, Avatar, Anchor } from '@mantine/core';
+import { Text, Box, Group, Divider, Stack, Avatar } from '@mantine/core';
 import HealthImg from '../../assets/healthhubPHOTO 1.png'
 import './styles.css'
 import { ButtonLogOut, SideBarLink }from '../Buttons';

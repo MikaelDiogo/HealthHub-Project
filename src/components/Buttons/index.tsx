@@ -2,7 +2,19 @@ import { Button, Text, UnstyledButton, Group } from '@mantine/core';
 import { FcGoogle } from "react-icons/fc";
 import {  NavLink as RouterLink, useLocation } from 'react-router-dom';
 import './styles.css'
-import { IconLogout2 } from '@tabler/icons-react';
+import { IconLogout2, IconPlus } from '@tabler/icons-react';
+import './styles.css'
+
+import { Modal, Tabs, TextInput, Textarea, Stack } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import {  
+  IconUser, 
+  IconStethoscope, 
+  IconClipboardText 
+} from '@tabler/icons-react';
+
+
+
 
 interface SidebarLinkProps {
   to: string;
@@ -57,6 +69,134 @@ export const SideBarLink = ({to, label, icon, textLabel}: SidebarLinkProps) => {
     );
 }
 
+
+/* export const ButtonAddPatient = () => {
+    return(
+        <Button 
+        className='flex! justify-center! items-center! bg-blue-900!'
+        size='md'
+        
+        >
+            <IconPlus className=''></IconPlus>
+            <Text className='text-white! font-bold! text-center text-sm!'>Adicionar Paciente</Text>
+        </Button>
+    );
+} */
+
+
+export const ButtonAddPatient = () => {
+    const [opened, { open, close }] = useDisclosure(false);
+
+    return (
+        <>
+            <Button 
+                className='flex! justify-center! items-center! bg-cyan-800!'
+                size='md'
+                onClick={open}
+            >
+                <IconPlus size={18} className="mr-2" />
+                <Text className='text-white! font-bold! text-center text-sm!'>
+                    Adicionar Paciente
+                </Text>
+            </Button>
+
+            <Modal 
+                opened={opened} 
+                onClose={close} 
+             
+                title={<Text fw={700} size="lg" className="text-brand-navy!">Novo Paciente - HealthHub</Text>}
+                centered 
+                size="lg"
+                radius="md"
+                overlayProps={{ backgroundOpacity: 0.6, blur: 4 }}
+            >
+                <Tabs color='cyan' defaultValue="pessoais" variant="pills">
+                    <Tabs.List grow mb="xl" className="bg-blue-50 p-1 rounded-lg">
+                        <Tabs.Tab value="pessoais" leftSection={<IconUser size={16} />}>
+                            Pessoais
+                        </Tabs.Tab>
+                        <Tabs.Tab value="hospitalares" leftSection={<IconStethoscope size={16} />}>
+                            Hospitalares
+                        </Tabs.Tab>
+                        <Tabs.Tab value="anamnese" leftSection={<IconClipboardText size={16} />}>
+                            Anamnese
+                        </Tabs.Tab>
+                    </Tabs.List>
+
+                    <Tabs.Panel value="pessoais">
+                      
+                        <Stack gap="lg">
+                            <TextInput label="Nome Completo" placeholder="Ex: Maria Silva Santos" required />
+                            <Group grow>
+                                 <TextInput label="RG" placeholder="ex: 11.111.111-2" />
+                                    <TextInput label="CPF" placeholder='ex: 111.111.111-00'/>
+                            </Group>
+                            <Group grow>
+                                <TextInput label="Idade" placeholder="41" />
+                                <TextInput label="Sexo" placeholder="Feminino" />
+                                
+                            </Group>
+                            <Group grow>
+                                <TextInput label="Telefone" placeholder="(88) 99999-9999" />            
+                            </Group>
+                            <Group grow>
+                                <TextInput label="Endereço" placeholder="ex: Av. Dom Pedro II, 58, Crateús - CE" />            
+                            </Group>
+                        </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="hospitalares">
+                        <Stack gap="md">
+                            <Group grow>
+                                <TextInput label="Temperatura(°C)" placeholder="ex: 99°C" />
+                                <TextInput label="Saturação(SpO²)" placeholder="ex: 95%" />
+                            </Group>
+                             <Group grow>
+                                <TextInput label="Pressão Arterial" placeholder="ex: 130/90" />
+                                <TextInput label="Frequência Cardíaca (bpm)" placeholder="ex: 88" />
+                            </Group>
+                             <Group grow>
+                                <TextInput label="Alergias" placeholder="ex: Dipirona, CetoProfeno" />            
+                            </Group>
+                            <Group grow>
+                                <TextInput label="Medicamento em Uso" placeholder="ex: Ibuprofeno, 300mg" />            
+                            </Group>
+                            
+                         
+
+
+                        </Stack>
+                    </Tabs.Panel>
+
+                    <Tabs.Panel value="anamnese">
+                        <Stack gap="md">
+                            <Textarea 
+                                label="Relato da Anamnese" 
+                                placeholder="Descreva o histórico clínico aqui..."
+                                minRows={20}
+                                autosize
+                            />
+                        </Stack>
+                    </Tabs.Panel>
+                </Tabs>
+
+                <Group justify="flex-end" mt="xl">
+                    <Button variant="subtle" color="gray" onClick={close}>
+                        Cancelar
+                    </Button>
+                    <Button className="bg-cyan-700! hover:bg-cyan-600! text-white!" onClick={close}>
+                        Salvar Paciente
+                    </Button>
+                </Group>
+            </Modal>
+        </>
+    );
+};
+
+
+    
+
+
 export const ButtonLoginGoogle = () => {
     return (
         <div className='w-80' >
@@ -93,5 +233,9 @@ export const ButtonEnter = ({ onClick, type = "button" }: ButtonEnterProps) => {
         </Button>
         </div>
 
+
+
     );
+
+
 }
