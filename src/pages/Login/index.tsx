@@ -1,6 +1,6 @@
 import axios from 'axios';
 import './styles.css'
-
+import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '@mantine/form';
 import { Avatar, Title, Text, Divider, Box} from "@mantine/core";
@@ -27,6 +27,29 @@ export default function Login() {
     const handleEntrar = async (values: typeof form.values) => {
 
         try {
+        const response = await api.post('/login', {
+            email: values.email,
+            password: values.password
+        });
+
+        const { token } = response.data;
+        localStorage.setItem('token', token);
+        navigate('/main');
+
+    } catch (error: unknown) { // Mudamos de 'any' para 'unknown'
+        let mensagem = "Erro ao conectar com o servidor";
+
+        // Verificamos se o erro veio do Axios de forma segura
+        if (axios.isAxiosError(error)) {
+            mensagem = error.response?.data?.message || mensagem;
+        }
+
+        form.setErrors({
+            password: mensagem
+        });
+    }
+    
+        /* try {
             const response = await axios.post('http://localhost:3001/login', {
                 email: values.email,
                 password: values.password
@@ -43,7 +66,7 @@ export default function Login() {
             form.setErrors({
                 password: mensagem
             });
-        }
+        } */
 
         /* const EMAIL_VERIFICADO = "enfermeiro@healthhub.com";
         const SENHA_VERIFICADA = "admin123"; */

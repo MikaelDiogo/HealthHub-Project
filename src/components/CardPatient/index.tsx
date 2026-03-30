@@ -1,4 +1,3 @@
-
 import { Card, Text, Avatar, Button, Group } from '@mantine/core';
 import { 
   IconHeartRateMonitor, 
@@ -17,21 +16,25 @@ interface CardPatientProps {
   temp?: string;
   bpm?: string;
   spo2?: string;
+  onView?: () => void; 
+  onEdit?: () => void; 
 }
 
 const CardPatient = ({ 
-   
   patientName, 
   patientAge, 
   patientGender,
-  temp = "36.8°C", 
-  bpm = "78 bpm", 
-  spo2 = "97%" 
+  onView,
+  onEdit,
+  temp = "--", 
+  bpm = "--", 
+  spo2 = "--" 
 }: CardPatientProps) => {
 
   // Função para pegar as iniciais (ex: Maria Silva -> MS)
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+    if (!name) return "?";
+    return name.split(' ').filter(n => n).map(n => n[0]).join('').slice(0, 2).toUpperCase();
   };
 
   return (
@@ -39,12 +42,10 @@ const CardPatient = ({
       withBorder 
       padding="lg" 
       radius="md" 
-      className="bg-white shadow-md! w-full max-w-md border-t-4! border-t-cyan-600/70!  "
+      className="bg-white shadow-md! w-full max-w-md border-t-4! border-t-cyan-600/70! "
     >
       {/* Cabeçalho: Avatar e Informações do Paciente */}
-      {/* Ajustado: de noWrap para wrap="nowrap" */}
-      <Group 
-      mb="lg" wrap="nowrap">
+      <Group mb="lg" wrap="nowrap">
         <Avatar 
           size={50} 
           radius={100} 
@@ -100,6 +101,7 @@ const CardPatient = ({
           size="md"
           leftSection={<IconEye size={18} />}
           className="border-cyan-200! text-cyan-900! hover:bg-cyan-50! font-medium!"
+          onClick={onView} // Aciona a abertura do Modal de Visualização
         >
           Visualizar
         </Button>
@@ -109,6 +111,7 @@ const CardPatient = ({
           size="md"
           leftSection={<IconPencil size={18} />}
           className="bg-cyan-800! hover:bg-cyan-700! font-medium!"
+          onClick={onEdit} // Aciona a abertura do Modal de Edição
         >
           Editar
         </Button>
