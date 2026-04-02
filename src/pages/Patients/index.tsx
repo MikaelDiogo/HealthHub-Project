@@ -13,6 +13,7 @@ import { FilterField } from "../../components/FilterField";
 import { ButtonAddPatient } from "../../components/Buttons";
 import CardPatient from "../../components/CardPatient";
 import api from "../../services/api";
+import { ModalEditPatient } from "../../components/Buttons/ModalEditPatient";
 
 interface SinalVital {
   id: string;
@@ -43,6 +44,11 @@ export const Patients = () => {
     const [opened, { open, close }] = useDisclosure(false);
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
+    const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
+    const [patientToEdit, setPatientToEdit] = useState<Patient | null>(null);
+
+
+
     useEffect(() => {
         api.get('/patients')
             .then(response => {
@@ -54,6 +60,11 @@ export const Patients = () => {
     const handleOpenView = (patient: Patient) => {
         setSelectedPatient(patient);
         open();
+    };
+
+    const handleOpenEdit = (patient: Patient) => {
+        setPatientToEdit(patient);
+        openEdit();
     };
 
     // Função auxiliar para exibir campos vazios com estilo
@@ -178,6 +189,12 @@ export const Patients = () => {
                 )}
             </Modal>
 
+            <ModalEditPatient 
+                opened={editOpened} 
+                onClose={closeEdit} 
+                patient={patientToEdit} 
+            />
+
             {/* Cabeçalho e Listagem permanecem os mesmos */}
             <Box mb="sm">
                 <Title order={2} className='text-brand-navy'>Gerenciamento de Pacientes</Title>
@@ -203,7 +220,7 @@ export const Patients = () => {
                             bpm={ultimaMedicao?.frequencia_cardiaca ? `${ultimaMedicao.frequencia_cardiaca} bpm` : "--"}
                             spo2={ultimaMedicao?.saturacao_oxigenio ? `${ultimaMedicao.saturacao_oxigenio}%` : "--"}
                             onView={() => handleOpenView(patient)}
-                            onEdit={() => console.log("Editar:", patient.id)}
+                            onEdit={() => handleOpenEdit(patient)}
                         />
                     );
                 })}

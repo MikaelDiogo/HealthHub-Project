@@ -5,6 +5,14 @@ import './styles.css'
 import { IconLogout2, IconPlus } from '@tabler/icons-react';
 import './styles.css'
 
+
+import { useState } from "react";
+
+import { useForm } from '@mantine/form';
+
+import api from "../../services/api";
+
+
 import { Modal, Tabs, TextInput, Textarea, Stack } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import {  
@@ -86,6 +94,68 @@ export const SideBarLink = ({to, label, icon, textLabel}: SidebarLinkProps) => {
 
 export const ButtonAddPatient = () => {
     const [opened, { open, close }] = useDisclosure(false);
+    const [loading, setLoading] = useState(false);
+
+    // Inicializando o formulário com os campos que o seu Back-end espera
+    const form = useForm({
+        initialValues: {
+            nome_completo: '',
+            rg: '',
+            cpf: '',
+            idade: '',
+            sexo: '',
+            telefone: '',
+            endereco: '',
+            alergias: '',
+            medicamentos_em_uso: '',
+            anamnese: '',
+            // Sinais iniciais (opcional, dependendo de como seu back trata o primeiro registro)
+            temperatura: '',
+            saturacao_oxigenio: '',
+            pressao_arterial: '',
+            frequencia_cardiaca: '',
+        },
+    });
+
+    const handleSubmit = async (values: typeof form.values) => {
+        setLoading(true);
+        try {
+            // 1. Criar o Paciente
+            const response = await api.post('/patients', {
+                nome_completo: values.nome_completo,
+                rg: values.rg,
+                cpf: values.cpf,
+                idade: Number(values.idade),
+                sexo: values.sexo,
+                telefone: values.telefone,
+                endereco: values.endereco,
+                alergias: values.alergias,
+                medicamentos_em_uso: values.medicamentos_em_uso,
+                anamnese: values.anamnese
+            });
+
+            // 2. Se você preencheu sinais vitais, envia para a rota de sinais usando o ID retornado
+            if (values.temperatura || values.frequencia_cardiaca) {
+                const patientId = response.data.id;
+                await api.post(`/sinais/${patientId}`, {
+                    temperatura: values.temperatura,
+                    frequencia_cardiaca: values.frequencia_cardiaca,
+                    saturacao_oxigenio: values.saturacao_oxigenio,
+                    pressao_arterial: values.pressao_arterial
+                });
+            }
+
+            alert("Paciente cadastrado com sucesso!");
+            form.reset();
+            close();
+            window.location.reload(); // Recarrega para ver o novo card (ou use um state global)
+        } catch (error) {
+            console.error("Erro ao salvar:", error);
+            alert("Erro ao salvar paciente. Verifique os dados.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <>
@@ -103,91 +173,71 @@ export const ButtonAddPatient = () => {
             <Modal 
                 opened={opened} 
                 onClose={close} 
-             
                 title={<Text fw={700} size="lg" className="text-brand-navy!">Novo Paciente - HealthHub</Text>}
                 centered 
                 size="lg"
                 radius="md"
-                overlayProps={{ backgroundOpacity: 0.6, blur: 4 }}
             >
-                <Tabs color='cyan' defaultValue="pessoais" variant="pills">
-                    <Tabs.List grow mb="xl" className="bg-blue-50 p-1 rounded-lg">
-                        <Tabs.Tab value="pessoais" leftSection={<IconUser size={16} />}>
-                            Pessoais
-                        </Tabs.Tab>
-                        <Tabs.Tab value="hospitalares" leftSection={<IconStethoscope size={16} />}>
-                            Hospitalares
-                        </Tabs.Tab>
-                        <Tabs.Tab value="anamnese" leftSection={<IconClipboardText size={16} />}>
-                            Anamnese
-                        </Tabs.Tab>
-                    </Tabs.List>
+                <form onSubmit={form.onSubmit(handleSubmit)}>
+                    <Tabs color='cyan' defaultValue="pessoais" variant="pills">
+                        <Tabs.List grow mb="xl" className="bg-blue-50 p-1 rounded-lg">
+                            <Tabs.Tab value="pessoais" leftSection={<IconUser size={16} />}>Pessoais</Tabs.Tab>
+                            <Tabs.Tab value="hospitalares" leftSection={<IconStethoscope size={16} />}>Hospitalares</Tabs.Tab>
+                            <Tabs.Tab value="anamnese" leftSection={<IconClipboardText size={16} />}>Anamnese</Tabs.Tab>
+                        </Tabs.List>
 
-                    <Tabs.Panel value="pessoais">
-                      
-                        <Stack gap="lg">
-                            <TextInput label="Nome Completo" placeholder="Ex: Maria Silva Santos" required />
-                            <Group grow>
-                                 <TextInput label="RG" placeholder="ex: 11.111.111-2" />
-                                    <TextInput label="CPF" placeholder='ex: 111.111.111-00'/>
-                            </Group>
-                            <Group grow>
-                                <TextInput label="Idade" placeholder="41" />
-                                <TextInput label="Sexo" placeholder="Feminino" />
-                                
-                            </Group>
-                            <Group grow>
-                                <TextInput label="Telefone" placeholder="(88) 99999-9999" />            
-                            </Group>
-                            <Group grow>
-                                <TextInput label="Endereço" placeholder="ex: Av. Dom Pedro II, 58, Crateús - CE" />            
-                            </Group>
-                        </Stack>
-                    </Tabs.Panel>
+                        <Tabs.Panel value="pessoais">
+                            <Stack gap="lg">
+                                <TextInput label="Nome Completo" placeholder="Ex: Maria Silva Santos" required {...form.getInputProps('nome_completo')} />
+                                <Group grow>
+                                    <TextInput label="RG" placeholder="ex: 11.111.111-2" {...form.getInputProps('rg')} />
+                                    <TextInput label="CPF" placeholder='ex: 111.111.111-00' {...form.getInputProps('cpf')} />
+                                </Group>
+                                <Group grow>
+                                    <TextInput label="Idade" placeholder="41" {...form.getInputProps('idade')} />
+                                    <TextInput label="Sexo" placeholder="Feminino" {...form.getInputProps('sexo')} />
+                                </Group>
+                                <TextInput label="Telefone" placeholder="(88) 99999-9999" {...form.getInputProps('telefone')} />
+                                <TextInput label="Endereço" placeholder="ex: Av. Dom Pedro II, 58, Crateús - CE" {...form.getInputProps('endereco')} />
+                            </Stack>
+                        </Tabs.Panel>
 
-                    <Tabs.Panel value="hospitalares">
-                        <Stack gap="md">
-                            <Group grow>
-                                <TextInput label="Temperatura(°C)" placeholder="ex: 99°C" />
-                                <TextInput label="Saturação(SpO²)" placeholder="ex: 95%" />
-                            </Group>
-                             <Group grow>
-                                <TextInput label="Pressão Arterial" placeholder="ex: 130/90" />
-                                <TextInput label="Frequência Cardíaca (bpm)" placeholder="ex: 88" />
-                            </Group>
-                             <Group grow>
-                                <TextInput label="Alergias" placeholder="ex: Dipirona, CetoProfeno" />            
-                            </Group>
-                            <Group grow>
-                                <TextInput label="Medicamento em Uso" placeholder="ex: Ibuprofeno, 300mg" />            
-                            </Group>
-                            
-                         
+                        <Tabs.Panel value="hospitalares">
+                            <Stack gap="md">
+                                <Group grow>
+                                    <TextInput label="Temperatura(°C)" placeholder="ex: 36.5" {...form.getInputProps('temperatura')} />
+                                    <TextInput label="Saturação(SpO²)" placeholder="ex: 98" {...form.getInputProps('saturacao_oxigenio')} />
+                                </Group>
+                                <Group grow>
+                                    <TextInput label="Pressão Arterial" placeholder="ex: 12/8" {...form.getInputProps('pressao_arterial')} />
+                                    <TextInput label="Frequência Cardíaca (bpm)" placeholder="ex: 80" {...form.getInputProps('frequencia_cardiaca')} />
+                                </Group>
+                                <TextInput label="Alergias" placeholder="ex: Dipirona" {...form.getInputProps('alergias')} />
+                                <TextInput label="Medicamento em Uso" placeholder="ex: Losartana" {...form.getInputProps('medicamentos_em_uso')} />
+                            </Stack>
+                        </Tabs.Panel>
 
-
-                        </Stack>
-                    </Tabs.Panel>
-
-                    <Tabs.Panel value="anamnese">
-                        <Stack gap="md">
+                        <Tabs.Panel value="anamnese">
                             <Textarea 
                                 label="Relato da Anamnese" 
                                 placeholder="Descreva o histórico clínico aqui..."
-                                minRows={20}
-                                autosize
+                                minRows={10}
+                                {...form.getInputProps('anamnese')}
                             />
-                        </Stack>
-                    </Tabs.Panel>
-                </Tabs>
+                        </Tabs.Panel>
+                    </Tabs>
 
-                <Group justify="flex-end" mt="xl">
-                    <Button variant="subtle" color="gray" onClick={close}>
-                        Cancelar
-                    </Button>
-                    <Button className="bg-cyan-700! hover:bg-cyan-600! text-white!" onClick={close}>
-                        Salvar Paciente
-                    </Button>
-                </Group>
+                    <Group justify="flex-end" mt="xl">
+                        <Button variant="subtle" color="gray" onClick={close}>Cancelar</Button>
+                        <Button 
+                            type="submit" 
+                            className="bg-cyan-700! hover:bg-cyan-600! text-white!"
+                            loading={loading}
+                        >
+                            Salvar Paciente
+                        </Button>
+                    </Group>
+                </form>
             </Modal>
         </>
     );
