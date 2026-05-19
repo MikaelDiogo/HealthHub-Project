@@ -96,7 +96,6 @@ export const ButtonAddPatient = () => {
     const [opened, { open, close }] = useDisclosure(false);
     const [loading, setLoading] = useState(false);
 
-    // Inicializando o formulário com os campos que o seu Back-end espera
     const form = useForm({
         initialValues: {
             nome_completo: '',
@@ -109,7 +108,6 @@ export const ButtonAddPatient = () => {
             alergias: '',
             medicamentos_em_uso: '',
             anamnese: '',
-            // Sinais iniciais (opcional, dependendo de como seu back trata o primeiro registro)
             temperatura: '',
             saturacao_oxigenio: '',
             pressao_arterial: '',
@@ -120,7 +118,6 @@ export const ButtonAddPatient = () => {
     const handleSubmit = async (values: typeof form.values) => {
         setLoading(true);
         try {
-            // 1. Criar o Paciente
             const response = await api.post('/patients', {
                 nome_completo: values.nome_completo,
                 rg: values.rg,
@@ -134,7 +131,6 @@ export const ButtonAddPatient = () => {
                 anamnese: values.anamnese
             });
 
-            // 2. Se você preencheu sinais vitais, envia para a rota de sinais usando o ID retornado
             if (values.temperatura || values.frequencia_cardiaca) {
                 const patientId = response.data.id;
                 await api.post(`/sinais/${patientId}`, {
@@ -148,7 +144,7 @@ export const ButtonAddPatient = () => {
             alert("Paciente cadastrado com sucesso!");
             form.reset();
             close();
-            window.location.reload(); // Recarrega para ver o novo card (ou use um state global)
+            window.location.reload();
         } catch (error) {
             console.error("Erro ao salvar:", error);
             alert("Erro ao salvar paciente. Verifique os dados.");
@@ -159,9 +155,11 @@ export const ButtonAddPatient = () => {
 
     return (
         <>
+            {/* Botão Principal com Gradiente */}
             <Button 
-                className='flex! justify-center! items-center! bg-cyan-800!'
+                className='flex! justify-center! items-center! bg-gradient-to-r! from-blue-500 to-emerald-400! hover:opacity-90! border-0! shadow-md!'
                 size='md'
+                radius="md"
                 onClick={open}
             >
                 <IconPlus size={18} className="mr-2" />
@@ -173,14 +171,25 @@ export const ButtonAddPatient = () => {
             <Modal 
                 opened={opened} 
                 onClose={close} 
-                title={<Text fw={700} size="lg" className="text-brand-navy!">Novo Paciente - HealthHub</Text>}
+                // Título com gradiente no texto
+                title={
+                    <Text fw={800} size="md" pl='lg' className="bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent!">
+                        Novo Paciente - HealthHub
+                    </Text>
+                }
                 centered 
                 size="lg"
                 radius="md"
+                padding={0} // Remove padding para o detalhe do topo encostar
+                className="overflow-hidden"
             >
-                <form onSubmit={form.onSubmit(handleSubmit)}>
-                    <Tabs color='cyan' defaultValue="pessoais" variant="pills">
-                        <Tabs.List grow mb="xl" className="bg-blue-50 p-1 rounded-lg">
+                {/* Detalhe de gradiente no topo do Modal */}
+                <div className="h-1.5 w-full bg-gradient-to-r from-blue-500 to-emerald-400" />
+                
+                <form onSubmit={form.onSubmit(handleSubmit)} className="p-6">
+                    {/* Tabs com cor azul (combina com o início do gradiente) */}
+                    <Tabs color='blue' defaultValue="pessoais" variant="pills">
+                        <Tabs.List grow mb="xl" className="bg-slate-50 p-1 rounded-lg border border-slate-100">
                             <Tabs.Tab value="pessoais" leftSection={<IconUser size={16} />}>Pessoais</Tabs.Tab>
                             <Tabs.Tab value="hospitalares" leftSection={<IconStethoscope size={16} />}>Hospitalares</Tabs.Tab>
                             <Tabs.Tab value="anamnese" leftSection={<IconClipboardText size={16} />}>Anamnese</Tabs.Tab>
@@ -231,7 +240,8 @@ export const ButtonAddPatient = () => {
                         <Button variant="subtle" color="gray" onClick={close}>Cancelar</Button>
                         <Button 
                             type="submit" 
-                            className="bg-cyan-700! hover:bg-cyan-600! text-white!"
+                            // Botão Salvar com o Gradiente
+                            className="bg-gradient-to-r! from-blue-500 to-emerald-400! hover:from-blue-600 hover:to-emerald-500! text-white! border-0! font-bold! shadow-sm"
                             loading={loading}
                         >
                             Salvar Paciente
